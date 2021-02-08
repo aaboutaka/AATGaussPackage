@@ -16,7 +16,7 @@ setup(
     license='MIT',
     classifiers=[
         "License :: OSI Approved :: MIT License",
-        "AAT Gaussian utility PackageProgramming Language :: Python :: 3",
+        "Programming Language :: Python :: 3",
         ],
     packages=['aatgausspackage'],
     include_package_data=True,

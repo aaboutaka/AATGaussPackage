@@ -1,5 +1,6 @@
 # Package with different functions to apply to Gaussian output files
 ## CREATED BY ALI ABOU TAKA
+### Date Modified: Feb 8 2021
 
                 There are the different fucntions in this package.
                 --------------------------------------------------

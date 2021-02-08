@@ -82,7 +82,7 @@ parser = argparse.ArgumentParser(
                                   AllFileList function can be used to
                                   generate the list of files.
                                   Accepted switches: -fn, -ff, -lw, -ms, -fs, -s,
-                                 -ns, -xmx, -al, -u, -esf, -ph, -esf
+                                 -ns, -xmx, -al, -u, -esf, -ph
                
                9) PlotSpecFC:    This Function will plot the FC of Photodetachment.
                                  It takes two arguments: the directory

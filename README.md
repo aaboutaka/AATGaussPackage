@@ -48,6 +48,9 @@ Package with different function to apply to Gaussian output files
                                   based on their extension.
                                   AllFileList function can be used to
                                   generate the list of files.
+                                  Accepted switches: -fn, -ff, -lw, -ms, -fs, -s,
+                                  -ns, -xmx, -al, -u, -esf, -ph                                  
+
                9) PlotSpecFC:    This Function will plot the FC of Photodetachment.
                                  It takes two arguments: the directory
                                  and list of files (log + csv file).

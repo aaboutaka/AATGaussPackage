@@ -1,5 +1,5 @@
-# CREATED BY ALI ABOU TAKA
-Package with different function to apply to Gaussian output files
+# Package with different functions to apply to Gaussian output files
+## CREATED BY ALI ABOU TAKA
 
                 There are the different fucntions in this package.
                 --------------------------------------------------

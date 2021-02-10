@@ -14,6 +14,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 import matplotlib.style as style
 import os
+import sys
 import argparse
 import textwrap
 from scipy.signal import find_peaks
@@ -52,18 +53,27 @@ parser = argparse.ArgumentParser(
                 4) PlotEnrg:      Plot the energy at each SCF vs the number
                                   of SCF cycles. It takes two arguments: the
                                   directory and list of log files
+                                  AllFileList function can be used to
+                                  generate the list of files, as the function
+                                  will only take log files.
                                   Accepted switches: -fn, -ff, -lw, -ms, -fs
                                  -xmn, -xmx, -al
 
                 5) PlotDIIS:      Plot the DIIS error at each SCF vs the 
                                   number of SCF cycles. It takes two arguments:
                                   the directory and list of log files
+                                  AllFileList function can be used to
+                                  generate the list of files, as the function
+                                  will only take log files.                                  
                                   Accepted switches: -fn, -ff, -lw, -ms, -fs
                                  -xmn, -xmx, -al                                  
 
                 6) PlotRMSDP:     Plot the RMSDP at each SCF vs the number
                                   of SCF cycles. It takes two arguments: the
                                   directory and list of log files
+                                  AllFileList function can be used to
+                                  generate the list of files, as the function
+                                  will only take log files.                                  
                                   Accepted switches: -fn, -ff, -lw, -ms, -fs
                                  -xmn, -xmx, -al                                  
 
@@ -71,13 +81,16 @@ parser = argparse.ArgumentParser(
                                   vs the number of SCF cycles. It takes three 
                                   arguments: the directory, list of log files,
                                   and a string for either 'Alpha' or 'Beta'.
+                                  AllFileList function can be used to
+                                  generate the list of files, as the function
+                                  will only take log files.                                  
                                   Accepted switches: -fn, -ff, -lw, -ms, -fs
                                  -xmn, -xmx, -al                                  
 
                 8) PlotExFC:      Plot FC of log files and exp files.
                                   It takes two arguments: the directory 
                                   and list of files (log + csv file).
-                                  The list of files are further catigorized
+                                  The list of files are further categorized 
                                   based on their extension.
                                   AllFileList function can be used to
                                   generate the list of files.
@@ -112,6 +125,7 @@ parser.add_argument("-ls","--labelsize", nargs='?', type=float, default=12.0, he
 parser.add_argument("-xmn","--xmin", nargs='?', type=float, default=0.0, help="Set x axis initial  point. The default value is 0.0")
 parser.add_argument("-xmx","--xmax", nargs='?', type=float, default=10000, help="Set x axis end point. The default value is the all the points")
 parser.add_argument("-al","--addlegend",  action="store_true", help="It is a boolean. If used, a legend will be placed under the plot. Without legend is the default.")
+parser.add_argument("-sl","--shiftlegend", nargs='?', type=float, default=-0.5, help="Shift the legend up or down by a specific unit. -0.5 is the default.")
 
 parser.add_argument("-t","--temp", nargs='?', default="0K", help="temperature at which the FC is generated at. 0K is the default. Currently supports 0K and 300K")
 parser.add_argument("-u","--unit", nargs='?', default="cm-1", help="energy unit for the x axis.It takes cm-1, nm, or eV. cm-1 is the default.")
@@ -142,6 +156,7 @@ labelsize   = args.labelsize
 xmin        = args.xmin
 xmax        = args.xmax
 add_legend  = args.addlegend
+shift_leged = args.shiftlegend
 
 unit        = args.unit
 temp        = args.temp
@@ -238,23 +253,24 @@ def PlotEnrg(directory,list_of_files):
     markers=[4,5,6,7,'s','P', '^',"*",'X']   
 
     for file in list_of_files:
-        file=os.path.join(directory,file)
-        EnergyL=[]
-        with open (file,'r') as f:
-            for line in f:
-                if "E= " in line:
-                    words = line.split()
-                    if (words[0] =="E="):
-                        energyval=float(words[1])
-                        EnergyL.append(energyval)
-        #     print (EnergyL)        
-            x_keys.append(list(range(len(EnergyL))))
-#                 print(x_keys)
-            y_values.append(EnergyL)
-            list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
-        
-        zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
-#         print(zipped3)
+        if "log" in file:
+            file=os.path.join(directory,file)
+            EnergyL=[]
+            with open (file,'r') as f:
+                for line in f:
+                    if "E= " in line:
+                        words = line.split()
+                        if (words[0] =="E="):
+                            energyval=float(words[1])
+                            EnergyL.append(energyval)
+            #     print (EnergyL)        
+                x_keys.append(list(range(len(EnergyL))))
+#                     print(x_keys)
+                y_values.append(EnergyL)
+                list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
+            
+            zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
+#             print(zipped3)
     for x,y,z,fn in zipped_list:
 #         ax.plot(i,j, linestyle = '', marker=next(markers))
         if xmax and xmin:
@@ -270,7 +286,7 @@ def PlotEnrg(directory,list_of_files):
         else:
             plt.plot(x,y,label=fn,marker=z,linewidth=linewidth, markersize=markersize)
         if add_legend:
-            plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3)            
+            plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)            
         style.use('seaborn-talk')
         ax = plt.subplot(111)    
         box = ax.get_position()    
@@ -299,23 +315,24 @@ def PlotDIIS(directory,list_of_files):
     markers=[4,5,6,7,'s','P', '^',"*",'X']   
 
     for file in list_of_files:
-        file=os.path.join(directory,file)
-        DIISL=[]
-        with open (file,'r') as f:
-            for line in f:
-                if "DIIS: error=" in line:
-                    line = line.replace("D","e")
-                    words = line.split()
-                    DIIS = float(words[2])
-                    DIISL.append(DIIS) 
-#            print(DIISL)
-            x_keys.append(list(range(len(DIISL))))
-#                 print(x_keys)
-            y_values.append(DIISL)
-            list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
-        
-        zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
-#         print(zipped3)
+        if "log" in file:        
+            file=os.path.join(directory,file)
+            DIISL=[]
+            with open (file,'r') as f:
+                for line in f:
+                    if "DIIS: error=" in line:
+                        line = line.replace("D","e")
+                        words = line.split()
+                        DIIS = float(words[2])
+                        DIISL.append(DIIS) 
+#                print(DIISL)
+                x_keys.append(list(range(len(DIISL))))
+#                     print(x_keys)
+                y_values.append(DIISL)
+                list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
+            
+            zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
+#             print(zipped3)
     for x,y,z,fn in zipped_list:
         if xmax and xmin:
             plt.xlim(xmin,xmax)
@@ -329,7 +346,7 @@ def PlotDIIS(directory,list_of_files):
         else:
             plt.plot(x,y,label=fn,marker=z,linewidth=linewidth, markersize=markersize)
         if add_legend:
-            plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3)            
+            plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)            
         style.use('seaborn-talk')
         ax = plt.subplot(111)    
         box = ax.get_position()    
@@ -362,23 +379,24 @@ def PlotRMSDP(directory,list_of_files):
     markers=[4,5,6,7,'s','P', '^',"*",'X']       
 
     for file in list_of_files:
-        file=os.path.join(directory,file)
-        if file == ref1:
-            continue    
-        RMSDPL=[]
-        with open (file,'r') as f:
-            for line in f:
-                if "RMSDP" in line:
-                    line = line.replace("="," ")
-                    line = line.replace("D","e")
-                    words = line.split()
-                    RMSDP = float(words[1])
-                    RMSDPL.append(RMSDP) 
-            x_keys.append(list(range(len(RMSDPL))))
-            y_values.append(RMSDPL)
-            list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
-            
-        zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
+        if "log" in file:        
+            file=os.path.join(directory,file)
+            if file == ref1:
+                continue    
+            RMSDPL=[]
+            with open (file,'r') as f:
+                for line in f:
+                    if "RMSDP" in line:
+                        line = line.replace("="," ")
+                        line = line.replace("D","e")
+                        words = line.split()
+                        RMSDP = float(words[1])
+                        RMSDPL.append(RMSDP) 
+                x_keys.append(list(range(len(RMSDPL))))
+                y_values.append(RMSDPL)
+                list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
+                
+            zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
     for x,y,z,fn in zipped_list:
         if xmax and xmin:
             plt.xlim(xmin,xmax)
@@ -393,7 +411,7 @@ def PlotRMSDP(directory,list_of_files):
         else:
             plt.plot(x,y,label=fn,marker=z,linewidth=linewidth, markersize=markersize)
         if add_legend:
-            plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3)            
+            plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)            
         style.use('seaborn-talk')
         ax = plt.subplot(111)    
         box = ax.get_position()    
@@ -427,32 +445,33 @@ def PlotNvirt(directory,list_of_files,switch):
         sys.exit(1)
 
     for file in list_of_files:
-        file=os.path.join(directory,file)  
-        NvirtL=[]
-        with open (file,'r') as f:
-            if switch== 'Alpha':
-                for line in f:
-                    if "Sum of the diagonals for virt the Alpha" in line:
-                        words = line.split()
-                        NvirtAlpha = float(words[9])
-                        NvirtL.append(NvirtAlpha)
-                x_keys.append(list(range(len(NvirtL))))
-        #                 print(x_keys)
-                y_values.append(NvirtL)
-                list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])                        
-                        
-            elif switch=='Beta':
-                for line in f:
-                    if "Sum of the diagonals for virt the Beta" in line:
-                        words = line.split()
-                        NvirtBeta = float(words[9])
-                        NvirtL.append(NvirtBeta) 
-                x_keys.append(list(range(len(NvirtL))))
-        #                 print(x_keys)
-                y_values.append(NvirtL)
-                list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
-        zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
-#         print(zipped_list)
+        if "log" in file:        
+            file=os.path.join(directory,file)  
+            NvirtL=[]
+            with open (file,'r') as f:
+                if switch== 'Alpha':
+                    for line in f:
+                        if "Sum of the diagonals for virt the Alpha" in line:
+                            words = line.split()
+                            NvirtAlpha = float(words[9])
+                            NvirtL.append(NvirtAlpha)
+                    x_keys.append(list(range(len(NvirtL))))
+            #                 print(x_keys)
+                    y_values.append(NvirtL)
+                    list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])                        
+                            
+                elif switch=='Beta':
+                    for line in f:
+                        if "Sum of the diagonals for virt the Beta" in line:
+                            words = line.split()
+                            NvirtBeta = float(words[9])
+                            NvirtL.append(NvirtBeta) 
+                    x_keys.append(list(range(len(NvirtL))))
+            #                 print(x_keys)
+                    y_values.append(NvirtL)
+                    list_of_filesL.append(os.path.splitext(os.path.split(file)[1])[0])
+            zipped_list= list(zip(x_keys,y_values,markers,list_of_filesL)) 
+#             print(zipped_list)
     for x,y,z,fn in zipped_list:
         if xmax and xmin:
             plt.xlim(xmin,xmax)
@@ -467,7 +486,7 @@ def PlotNvirt(directory,list_of_files,switch):
         else:
             plt.plot(x,y,label=fn,marker=z,linewidth=linewidth, markersize=markersize)
         if add_legend:
-            plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3)            
+            plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
         style.use('seaborn-talk')
         ax = plt.subplot(111)    
         box = ax.get_position()    
@@ -584,7 +603,7 @@ def PlotExFC(directory, list_of_files):
                 plt.xlabel('E('+cm_unit+')', fontsize=12)
             else:
                 plt.xlabel('E('+unit+')', fontsize=12)
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), shadow=True, ncol=3)
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
 
     # Plot the TD file and set its energy as the reference
     for file in file_TDL:
@@ -718,12 +737,12 @@ def PlotExFC(directory, list_of_files):
                 plt.xlabel('E('+unit+')', fontsize=12)
             plt.plot(dff['x'],dff['y-0k'],
                     label=os.path.splitext(os.path.split(file)[1])[0],alpha= alpha_val,linewidth=linewidth, markersize=markersize)
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), shadow=True, ncol=3)
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
         elif temp == '300K' :
             plt.plot(dff['x'],dff['y-300k'],
                     label=os.path.splitext(os.path.split(file)[1])[0], alpha= alpha_val,linewidth=linewidth, markersize=markersize)
 #            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=3)
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), shadow=True, ncol=3)
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
             plt.ylabel('Intensity', fontsize=12)
             if unit == "cm-1":
                 plt.xlabel('E('+cm_unit+')', fontsize=12)
@@ -864,7 +883,7 @@ def PlotExFC(directory, list_of_files):
             plt.plot(dff['x'],dff['y-0k'],
                     label=os.path.splitext(os.path.split(file)[1])[0],alpha= alpha_val,linewidth=linewidth, markersize=markersize)
 #            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=3)
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.11), shadow=True, ncol=3)
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
         elif temp == '300K' :
             plt.ylabel('Intensity', fontsize=12)
             if unit == "cm-1":
@@ -874,7 +893,7 @@ def PlotExFC(directory, list_of_files):
             plt.plot(dff['x'],dff['y-300k'],
                     label=os.path.splitext(os.path.split(file)[1])[0], alpha= alpha_val,linewidth=linewidth, markersize=markersize)
 #            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=3)
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.11), shadow=True, ncol=3)
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
 #####################################################
 #####################################################
     # Save the figure
@@ -989,7 +1008,7 @@ def PlotSpecFC(directory, list_of_files):
                 plt.plot(dff["x"],dff["y"],
                         label=os.path.splitext(os.path.split(file)[1])[0],alpha=alpha_val,linewidth=linewidth, markersize=markersize)
                 if add_legend:
-                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3) 
+                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3) 
                 plt.ylabel('Intensity', fontsize=12)
                 if unit == "cm-1":
                     plt.xlabel('E('+cm_unit+')', fontsize=12)
@@ -1001,7 +1020,7 @@ def PlotSpecFC(directory, list_of_files):
                 plt.plot(dff["x"],dff["y"],
                     label=os.path.splitext(os.path.split(file)[1])[0],alpha=alpha_val,linewidth=linewidth, markersize=markersize)
                 if add_legend:
-                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3) 
+                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3) 
                 plt.ylabel('Intensity', fontsize=12)
                 if unit == "cm-1":
                     plt.xlabel('E('+cm_unit+')', fontsize=12)
@@ -1126,7 +1145,7 @@ def PlotSpecFC(directory, list_of_files):
                 plt.plot(dff["x"],dff["y"],
                         label=os.path.splitext(os.path.split(file)[1])[0],alpha=alpha_val,linewidth=linewidth, markersize=markersize)
                 if add_legend:
-                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3)
+                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
                 plt.ylabel('Intensity', fontsize=12)
                 if unit == "cm-1":
                     plt.xlabel('E('+cm_unit+')', fontsize=12)
@@ -1138,7 +1157,7 @@ def PlotSpecFC(directory, list_of_files):
                 plt.plot(dff["x"],dff["y"],
                     label=os.path.splitext(os.path.split(file)[1])[0],alpha=alpha_val,linewidth=linewidth, markersize=markersize)
                 if add_legend:
-                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25), shadow=True, ncol=3)
+                    plt.legend(loc='lower center', bbox_to_anchor=(0.5, shift_leged), shadow=True, ncol=3)
                 plt.ylabel('Intensity', fontsize=12)
                 if unit == "cm-1":
                     plt.xlabel('E('+cm_unit+')', fontsize=12)

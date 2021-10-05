@@ -6,10 +6,10 @@ with open("README.md", "r") as fh:
 
 setup(
     name='AATGaussPackage',
-    version='0.0.2',
+    version='0.1.34',
     description='AAT Gaussian utility Package',
     long_description = long_description,
-    long_description_content_type= 'text/markdown',
+    long_description_content_type="text/markdown",
     url='https://github.com/aaboutaka/AATGaussPackage',
     author='Ali Abou Taka',
     author_email='abotaka.ali@gmail.com',

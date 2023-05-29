@@ -4,7 +4,7 @@
 
                                   READ BELOW
                                     ----------
-                There are the different fucntions in this package.
+                These are the different fucntions in this package.
                 --------------------------------------------------
 
                 1) AllFileList:   Generate a list of all files in the

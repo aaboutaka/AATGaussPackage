@@ -4,10 +4,13 @@
 
 # Example on how to use the package
 
+
 import os
 import aatgausspackage as aat
 ####
+# Assuming you have log files in the current directory
 directory  = os.getcwd()
+
 #listoffiles = aat.Input_or_allLog_FileList(directory)
 listoffiles = aat.Input_or_allLog_FileList(directory)
 

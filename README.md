@@ -1,6 +1,10 @@
 # Package with different functions to apply to Gaussian output files
 ## CREATED BY ALI ABOU TAKA
-### Date Modified: Feb 15 2022
+### Date Modified: May 29 2023
+#### Two options to install / use the package:
+1. Add `sys.path.append('/path/to/package')` to the top of the python script.
+2. Use pip `pip install -i https://test.pypi.org/simple/ AATGaussPackage`.
+
 
                                   READ BELOW
                                     ----------
